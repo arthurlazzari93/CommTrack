@@ -9,15 +9,16 @@ const PlanosList = () => {
   const [comissoes, setComissoes] = useState({});
   
   const [newPlano, setNewPlano] = useState({
-    nome_plano: '',
-    tipo_plano: '',
-    taxa_administrativa: '',
-    parcelas_total: ''
+    operadora: '',
+    tipo: '',
+    comissionamento_total: '',
+    numero_parcelas: ''
   });
+  
 
   useEffect(() => {
     // Carregar todos os planos de uma vez
-    axios.get('http://localhost:8000/api/planos/')
+    axios.get('http://localhost:8000/api/plano/')
       .then((response) => {
         setPlanos(response.data);
       })
@@ -26,75 +27,73 @@ const PlanosList = () => {
       });
   
     // Carregar todas as comissões de uma vez e organizar no estado
-    axios.get('http://localhost:8000/api/comissoes-planos/')
-      .then((comissoesResponse) => {
-        const comissoesMap = {};
-        comissoesResponse.data.forEach((comissao) => {
-          comissoesMap[`${comissao.plano}-${comissao.parcela_numero}`] = {
-            id: comissao.id,
-            porcentagem_comissao: comissao.porcentagem_comissao
-          };
-        });
-        setComissoes(comissoesMap);
-      })
-      .catch(error => console.error('Erro ao carregar comissões:', error));
+// Carregar todas as parcelas (comissões) de uma vez e organizar no estado
+axios.get('http://localhost:8000/api/parcela/')
+  .then((response) => {
+    const comissoesMap = {};
+    response.data.forEach((parcela) => {
+      comissoesMap[`${parcela.plano}-${parcela.numero_parcela}`] = {
+        id: parcela.id,
+        porcentagem_parcela: parcela.porcentagem_parcela
+      };
+    });
+    setComissoes(comissoesMap);
+  })
+  .catch(error => console.error('Erro ao carregar parcelas:', error));
+
   }, []);
   
   
   
   
   
-  const handleSaveComissao = (planoId, parcela_numero) => {
-    // Obtenha o valor da comissão para a parcela e plano específicos
-    const porcentagem_comissao = comissoes[`${planoId}-${parcela_numero}`]?.porcentagem_comissao || '0';
+  const handleSaveComissao = (planoId, numero_parcela) => {
+    const porcentagem_parcela = comissoes[`${planoId}-${numero_parcela}`]?.porcentagem_parcela || '0';
   
-    // Verifique se existe uma comissão no estado para esta combinação
-    if (comissoes[`${planoId}-${parcela_numero}`]?.id) {
-      // Se já existe uma comissão para esta parcela do plano, faça uma atualização
-      const comissaoId = comissoes[`${planoId}-${parcela_numero}`].id;
-      axios.put(`http://localhost:8000/api/comissoes-planos/${comissaoId}/`, {
+    if (comissoes[`${planoId}-${numero_parcela}`]?.id) {
+      const parcelaId = comissoes[`${planoId}-${numero_parcela}`].id;
+      axios.put(`http://localhost:8000/api/parcela/${parcelaId}/`, {
         plano: planoId,
-        parcela_numero,
-        porcentagem_comissao
+        numero_parcela,
+        porcentagem_parcela
       })
       .then(() => {
-        console.log(`Parcela ${parcela_numero} do plano ${planoId} atualizada com sucesso.`);
+        console.log(`Parcela ${numero_parcela} do plano ${planoId} atualizada com sucesso.`);
       })
       .catch((error) => {
-        console.error(`Erro ao atualizar a parcela ${parcela_numero} do plano ${planoId}:`, error);
+        console.error(`Erro ao atualizar a parcela ${numero_parcela} do plano ${planoId}:`, error);
       });
     } else {
-      // Crie uma nova comissão se não existir para a parcela e plano específicos
-      axios.post('http://localhost:8000/api/comissoes-planos/', {
+      axios.post('http://localhost:8000/api/parcela/', {
         plano: planoId,
-        parcela_numero,
-        porcentagem_comissao
+        numero_parcela,
+        porcentagem_parcela
       })
       .then((response) => {
-        console.log(`Nova comissão criada para a parcela ${parcela_numero} do plano ${planoId}.`);
-        // Atualize o estado com o ID retornado para evitar duplicações futuras
+        console.log(`Nova parcela criada para o plano ${planoId}.`);
         setComissoes(prevComissoes => ({
           ...prevComissoes,
-          [`${planoId}-${parcela_numero}`]: {
+          [`${planoId}-${numero_parcela}`]: {
             id: response.data.id,
-            porcentagem_comissao: porcentagem_comissao
+            porcentagem_parcela: porcentagem_parcela
           }
         }));
       })
       .catch((error) => {
-        console.error(`Erro ao criar nova comissão para a parcela ${parcela_numero} do plano ${planoId}:`, error);
+        console.error(`Erro ao criar nova parcela para o plano ${planoId}:`, error);
       });
     }
   };
   
   
   
+  
 
-  const handleInputChangeComissao = (planoId, parcela_numero, porcentagem_comissao) => {
+  const handleInputChangeComissao = (planoId, numero_parcela, porcentagem_comissao) => {
     setComissoes(prevComissoes => ({
       ...prevComissoes,
-      [`${planoId}-${parcela_numero}`]: {
-        ...prevComissoes[`${planoId}-${parcela_numero}`],
+      [`${planoId}-${numero_parcela}`]: {
+        ...prevComissoes[`${planoId}-${numero_parcela}`],
         porcentagem_comissao: porcentagem_comissao
       }
     }));
@@ -106,42 +105,42 @@ const PlanosList = () => {
     const totalParcelas = planos.find(plano => plano.id === planoId).parcelas_total;
   
     Array.from({ length: totalParcelas }).forEach((_, i) => {
-      const parcela_numero = i + 1;
-      const porcentagem_comissao = comissoes[`${planoId}-${parcela_numero}`]?.porcentagem_comissao || '0';
+      const numero_parcela = i + 1;
+      const porcentagem_comissao = comissoes[`${planoId}-${numero_parcela}`]?.porcentagem_comissao || '0';
   
-      if (comissoes[`${planoId}-${parcela_numero}`]?.id) {
+      if (comissoes[`${planoId}-${numero_parcela}`]?.id) {
         // Atualiza a comissão existente
-        const comissaoId = comissoes[`${planoId}-${parcela_numero}`].id;
-        axios.put(`http://localhost:8000/api/comissoes-planos/${comissaoId}/`, {
+        const comissaoId = comissoes[`${planoId}-${numero_parcela}`].id;
+        axios.put(`http://localhost:8000/api/parcela/${comissaoId}/`, {
           plano: planoId,
-          parcela_numero,
+          numero_parcela,
           porcentagem_comissao
         })
         .then(() => {
-          console.log(`Parcela ${parcela_numero} do plano ${planoId} atualizada com sucesso.`);
+          console.log(`Parcela ${numero_parcela} do plano ${planoId} atualizada com sucesso.`);
         })
         .catch((error) => {
-          console.error(`Erro ao atualizar a parcela ${parcela_numero} do plano ${planoId}:`, error);
+          console.error(`Erro ao atualizar a parcela ${numero_parcela} do plano ${planoId}:`, error);
         });
       } else {
         // Cria uma nova comissão para a parcela do plano
-        axios.post('http://localhost:8000/api/comissoes-planos/', {
+        axios.post('http://localhost:8000/api/parcela/', {
           plano: planoId,
-          parcela_numero,
+          numero_parcela,
           porcentagem_comissao
         })
         .then((response) => {
-          console.log(`Nova comissão criada para a parcela ${parcela_numero} do plano ${planoId}.`);
+          console.log(`Nova comissão criada para a parcela ${numero_parcela} do plano ${planoId}.`);
           setComissoes(prevComissoes => ({
             ...prevComissoes,
-            [`${planoId}-${parcela_numero}`]: {
+            [`${planoId}-${numero_parcela}`]: {
               id: response.data.id,
               porcentagem_comissao: porcentagem_comissao
             }
           }));
         })
         .catch((error) => {
-          console.error(`Erro ao criar nova comissão para a parcela ${parcela_numero} do plano ${planoId}:`, error);
+          console.error(`Erro ao criar nova comissão para a parcela ${numero_parcela} do plano ${planoId}:`, error);
         });
       }
     });
@@ -160,6 +159,7 @@ const PlanosList = () => {
       setNewPlano({ ...newPlano, [name]: value });
     }
   };
+  
 
   const handleNewPlano = () => {
     setSelectedPlano(null);
@@ -172,7 +172,7 @@ const PlanosList = () => {
   };
 
   const handleDeletePlano = (id) => {
-    axios.delete(`http://localhost:8000/api/planos/${id}/`)
+    axios.delete(`http://localhost:8000/api/plano/${id}/`)
       .then(() => {
         setPlanos(planos.filter(plano => plano.id !== id));
         setSelectedPlano(null);  // Limpa o formulário
@@ -184,9 +184,11 @@ const PlanosList = () => {
 
   const handleSavePlano = (e) => {
     e.preventDefault();
-
+  
+    const planoData = selectedPlano ? selectedPlano : newPlano;
+  
     if (selectedPlano) {
-      axios.put(`http://localhost:8000/api/planos/${selectedPlano.id}/`, selectedPlano)
+      axios.put(`http://localhost:8000/api/plano/${selectedPlano.id}/`, planoData)
         .then(() => {
           setPlanos(planos.map(plano => plano.id === selectedPlano.id ? selectedPlano : plano));
           setSelectedPlano(null);  // Limpa o formulário
@@ -195,23 +197,26 @@ const PlanosList = () => {
           console.error('Erro ao modificar plano', error);
         });
     } else {
-      axios.post('http://localhost:8000/api/planos/', newPlano)
+      axios.post('http://localhost:8000/api/plano/', planoData)
         .then((response) => {
           setPlanos([...planos, response.data]);
           setNewPlano({
-            nome_plano: '',
-            tipo_plano: '',
-            taxa_administrativa: '',
-            parcelas_total: ''
+            operadora: '',
+            tipo: '',
+            comissionamento_total: '',
+            numero_parcelas: ''
           });
         })
         .catch((error) => {
           console.error('Erro ao cadastrar plano', error);
         });
     }
+  };
+  
+  
 
     
-  };
+  
 
   return (
     <>
@@ -228,72 +233,77 @@ const PlanosList = () => {
         )}
       </CardHeader>
       <Form onSubmit={handleSavePlano} className="p-3">
-        <Row>
-        <Col md="3">
-          <FormGroup>
-            <Label for="nome_plano">Nome do Plano</Label>
-            <Input
-              type="text"
-              name="nome_plano"
-              id="nome_plano"
-              value={selectedPlano ? selectedPlano.nome_plano : newPlano.nome_plano}
-              onChange={handleInputChange}
-              placeholder="Nome do plano"
-              required
-            />
-          </FormGroup>
-        </Col>
-        <Col md="3">
-          <FormGroup>
-            <Label for="tipo_plano">Tipo do Plano</Label>
-            <Input
-              type="text"
-              name="tipo_plano"
-              id="tipo_plano"
-              value={selectedPlano ? selectedPlano.tipo_plano : newPlano.tipo_plano}
-              onChange={handleInputChange}
-              placeholder="Tipo do plano"
-              required
-            />
-          </FormGroup>
-        </Col>
-        <Col md="3">
-          <FormGroup>
-            <Label for="taxa_administrativa">Taxa Administrativa</Label>
-            <Input
-              type="number"
-              step="0.01"
-              name="taxa_administrativa"
-              id="taxa_administrativa"
-              value={selectedPlano ? selectedPlano.taxa_administrativa : newPlano.taxa_administrativa}
-              onChange={handleInputChange}
-              placeholder="Taxa administrativa"
-              required
-            />
-          </FormGroup>
-        </Col>
-        <Col md="3">
-          <FormGroup>
-            <Label for="parcelas_total">Total de Parcelas</Label>
-            <Input
-              type="number"
-              name="parcelas_total"
-              id="parcelas_total"
-              value={selectedPlano ? selectedPlano.parcelas_total : newPlano.parcelas_total}
-              onChange={handleInputChange}
-              placeholder="Total de parcelas"
-              required
-            />
-          </FormGroup>
-        </Col>
-        </Row>
-        <Button type="submit" color="primary">
-          {selectedPlano ? 'Modificar' : 'Cadastrar'}
-        </Button>
-        {selectedPlano && (
-          <Button color="danger" className="ml-2" onClick={() => handleDeletePlano(selectedPlano.id)}>Deletar</Button>
-        )}
-      </Form>
+  <Row>
+    <Col md="3">
+      <FormGroup>
+        <Label for="operadora">Operadora</Label>
+        <Input
+          type="text"
+          name="operadora"
+          id="operadora"
+          value={selectedPlano ? selectedPlano.operadora : newPlano.operadora}
+          onChange={handleInputChange}
+          placeholder="Operadora"
+          required
+        />
+      </FormGroup>
+    </Col>
+    <Col md="3">
+      <FormGroup>
+        <Label for="tipo">Tipo do Plano</Label>
+        <Input
+          type="select"
+          name="tipo"
+          id="tipo"
+          value={selectedPlano ? selectedPlano.tipo : newPlano.tipo}
+          onChange={handleInputChange}
+          required
+        >
+          <option value="">Selecione o tipo</option>
+          <option value="PME">PME</option>
+          <option value="PF">Pessoa Física</option>
+          <option value="Adesão">Adesão</option>
+        </Input>
+      </FormGroup>
+    </Col>
+    <Col md="3">
+      <FormGroup>
+        <Label for="comissionamento_total">Comissionamento Total (%)</Label>
+        <Input
+          type="number"
+          step="0.01"
+          name="comissionamento_total"
+          id="comissionamento_total"
+          value={selectedPlano ? selectedPlano.comissionamento_total : newPlano.comissionamento_total}
+          onChange={handleInputChange}
+          placeholder="Comissionamento total"
+          required
+        />
+      </FormGroup>
+    </Col>
+    <Col md="3">
+      <FormGroup>
+        <Label for="numero_parcelas">Número de Parcelas</Label>
+        <Input
+          type="number"
+          name="numero_parcelas"
+          id="numero_parcelas"
+          value={selectedPlano ? selectedPlano.numero_parcelas : newPlano.numero_parcelas}
+          onChange={handleInputChange}
+          placeholder="Número de parcelas"
+          required
+        />
+      </FormGroup>
+    </Col>
+  </Row>
+  <Button type="submit" color="primary">
+    {selectedPlano ? 'Modificar' : 'Cadastrar'}
+  </Button>
+  {selectedPlano && (
+    <Button color="danger" className="ml-2" onClick={() => handleDeletePlano(selectedPlano.id)}>Deletar</Button>
+  )}
+</Form>
+
     </Card>
   </Col>
       </Row>
@@ -306,46 +316,45 @@ const PlanosList = () => {
               <h3 className="text-white mb-0">Lista de Planos</h3>
             </CardHeader>
             <Table className="align-items-center table-dark table-flush" responsive>
-              <thead className="thead-dark">
-                <tr>
-                  <th>Ações</th>
+  <thead className="thead-dark">
+    <tr>
+      <th>Ações</th>
+      <th>Operadora</th>
+      <th>Tipo do Plano</th>
+      <th>Comissionamento Total (%)</th>
+      {/* Cabeçalhos das parcelas */}
+      {Array.from({ length: Math.max(...planos.map(plano => plano.numero_parcelas)) }, (_, i) => (
+        <th key={i}>Parcela {i + 1} (%)</th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {planos.map((plano) => (
+      <tr key={plano.id}>
+        <td>
+          <Button color="info" onClick={() => setSelectedPlano(plano)} size="sm">Modificar</Button>
+          <Button color="success" onClick={() => handleSaveAllComissoes(plano.id)} size="sm">Salvar Comissões</Button>
+        </td>
+        <td>{plano.operadora}</td>
+        <td>{plano.tipo}</td>
+        <td>{plano.comissionamento_total}</td>
+        {/* Inputs das parcelas */}
+        {Array.from({ length: plano.numero_parcelas }, (_, i) => (
+          <td key={i}>
+            <Input
+              type="number"
+              value={comissoes[`${plano.id}-${i + 1}`]?.porcentagem_parcela || ''}
+              onChange={(e) => handleInputChangeComissao(plano.id, i + 1, e.target.value)}
+              onBlur={() => handleSaveComissao(plano.id, i + 1)}
+              placeholder="%"
+            />
+          </td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+</Table>
 
-                  <th>Nome do Plano</th>
-                  <th>Tipo do Plano</th>
-                  <th>Taxa Administrativa</th>
-
-                  {Array.from({ length: Math.max(...planos.map(plano => plano.parcelas_total)) }, (_, i) => (
-                    <th key={i}>Parcela {i + 1}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {planos.map((plano) => (
-                  <tr key={plano.id}>
-                    <td>
-                      <Button color="info" href="#pablo" onClick={() => setSelectedPlano(plano)} size="sm">Modificar</Button>
-                      <Button color="success" onClick={() => handleSaveAllComissoes(plano.id)} size="sm">Salvar Comissões</Button>
-                    </td>
-
-                    <td>{plano.nome_plano}</td>
-                    <td>{plano.tipo_plano}</td>
-                    <td>{plano.taxa_administrativa}</td>
-
-                    {Array.from({ length: plano.parcelas_total }, (_, i) => (
-                      <td key={i}>
-                        <Input
-                          type="number"
-                          value={comissoes[`${plano.id}-${i + 1}`]?.porcentagem_comissao || ''}
-                          onChange={(e) => handleInputChangeComissao(plano.id, i + 1, e.target.value)}
-                          onBlur={() => handleSaveComissao(plano.id, i + 1)}
-                          placeholder="%"
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
           </Card>
         </Col>
       </Row>

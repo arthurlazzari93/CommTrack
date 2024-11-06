@@ -8,7 +8,7 @@ const ControleList = () => {
   const [selectedControle, setSelectedControle] = useState(null);
   const [newControle, setNewControle] = useState({
     venda: '',
-    parcela_numero: '',
+    numero_parcela: '',
     data_parcela: '',
     valor_comissao: '',
     confirmacao_pagamento: 'Aguardando',
@@ -45,7 +45,7 @@ const ControleList = () => {
           setControles([...controles, response.data]);
           setNewControle({
             venda: '',
-            parcela_numero: '',
+            numero_parcela: '',
             data_parcela: '',
             valor_comissao: '',
             confirmacao_pagamento: 'Aguardando',
@@ -75,7 +75,7 @@ const ControleList = () => {
     setSelectedControle(null);
     setNewControle({
       venda: '',
-      parcela_numero: '',
+      numero_parcela: '',
       data_parcela: '',
       valor_comissao: '',
       confirmacao_pagamento: 'Aguardando',
@@ -129,7 +129,7 @@ const ControleList = () => {
                       <tr key={controle.id} onClick={() => handleSelectControle(controle)}>
                         <td>{controle.id}</td>
                         <td>{venda ? venda.numero_proposta : controle.venda}</td>
-                        <td>{controle.parcela_numero}</td>
+                        <td>{controle.numero_parcela}</td>
                         <td>{controle.data_parcela}</td>
                         <td>{controle.valor_comissao}</td>
                         <td>{controle.confirmacao_pagamento}</td>
@@ -160,8 +160,8 @@ const ControleList = () => {
                   </Input>
                 </FormGroup>
                 <FormGroup>
-                  <Label for="parcela_numero">Número da Parcela</Label>
-                  <Input type="number" name="parcela_numero" id="parcela_numero" value={selectedControle ? selectedControle.parcela_numero : newControle.parcela_numero} onChange={handleInputChange} required />
+                  <Label for="numero_parcela">Número da Parcela</Label>
+                  <Input type="number" name="numero_parcela" id="numero_parcela" value={selectedControle ? selectedControle.numero_parcela : newControle.numero_parcela} onChange={handleInputChange} required />
                 </FormGroup>
                 <FormGroup>
                   <Label for="data_parcela">Data da Parcela</Label>
