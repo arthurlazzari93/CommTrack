@@ -137,7 +137,7 @@ const VendasList = () => {
       map[consultor.id] = consultor.nome;
       return map;
     }, {});
-  }, [consultores]);
+  }, [consultor]);
 
   return (
     <>
