@@ -120,7 +120,7 @@ const VendasList = () => {
   // Criar mapas para acessos rápidos
   const clientesMap = useMemo(() => {
     return clientes.reduce((map, cliente) => {
-      map[cliente.id] = cliente.nome_cliente;
+      map[cliente.id] = cliente.nome;
       return map;
     }, {});
   }, [clientes]);
@@ -190,7 +190,7 @@ const VendasList = () => {
                   <Label for="cliente">Cliente</Label>
                   <Input type="select" name="cliente" id="cliente" value={selectedVenda ? selectedVenda.cliente : newVenda.cliente} onChange={handleInputChange} required>
                     <option value="">Selecione o cliente</option>
-                    {clientes.map(cliente => <option key={cliente.id} value={cliente.id}>{cliente.nome_cliente}</option>)}
+                    {clientes.map(cliente => <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>)}
                   </Input>
                 </FormGroup>
                 <FormGroup>

@@ -164,10 +164,10 @@ axios.get('http://localhost:8000/api/parcela/')
   const handleNewPlano = () => {
     setSelectedPlano(null);
     setNewPlano({
-      nome_plano: '',
-      tipo_plano: '',
-      taxa_administrativa: '',
-      parcelas_total: ''
+      operadora: '',
+      tipo: '',
+      comissionamento_total: '',
+      numero_parcelas: ''
     });
   };
 

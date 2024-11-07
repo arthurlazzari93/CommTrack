@@ -6,7 +6,11 @@ import Header from 'components/Headers/Header';
 const ClientsList = () => {
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);  // Cliente selecionado para edição
-  const [newClient, setNewClient] = useState({ nome_cliente: '' });
+  const [newClient, setNewClient] = useState({ 
+    neme: '',
+    telefone:  '',
+    email: ''
+  });
 
   useEffect(() => {
     axios.get('http://localhost:8000/api/clientes/')
@@ -37,7 +41,7 @@ const ClientsList = () => {
       axios.post('http://localhost:8000/api/clientes/', newClient)
         .then((response) => {
           setClients([...clients, response.data]);
-          setNewClient({ nome_cliente: '' });  // Limpa o formulário
+          setNewClient({ nome: '' });  // Limpa o formulário
         })
         .catch((error) => {
           console.error('Erro ao cadastrar cliente', error);
@@ -67,7 +71,12 @@ const ClientsList = () => {
   // Função para limpar o formulário e voltar ao estado de cadastro
   const handleNewClient = () => {
     setSelectedClient(null);
-    setNewClient({ nome_cliente: '' });
+    setNewClient({
+       nome: '',
+       telefone: '',
+       email: ''
+
+     });
   };
 
   // Atualiza os valores no formulário
@@ -83,57 +92,66 @@ const ClientsList = () => {
     <>
       <Header />
       <Container className="mt--7" fluid>
-        <Row>
-          {/* Coluna da lista de clientes */}
-          <Col xl="8">
-            <Card className="bg-default shadow">
-              <CardHeader className="bg-transparent border-0">
-                <h3 className="text-white mb-0">Lista de Clientes</h3>
-              </CardHeader>
-              <Table className="align-items-center table-dark table-flush" responsive>
-                <thead className="thead-dark">
-                  <tr>
-
-                    <th>Nome do Cliente</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((client) => (
-                    <tr key={client.id} onClick={() => handleSelectClient(client)}>
-
-                      <td>{client.nome_cliente}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card>
-          </Col>
-
+        <Row>    
           {/* Coluna do formulário de cadastro/edição de cliente */}
-          <Col xl="4" className="mb-0">
-            <Card className="bg-secondary shadow">
+          <Col>
+            <Card className="bg-secondary shadow mb-4">
               <CardHeader className="border-0 d-flex justify-content-between align-items-center">
                 <h3 className="mb-0">{selectedClient ? 'Editar Cliente' : 'Cadastrar Novo Cliente'}</h3>
                 {selectedClient && (
                   <Button color="info" onClick={handleNewClient}>Novo Cliente</Button>
                 )}
               </CardHeader>
-              <Col xl="12" className="mb-4">
-              <Form onSubmit={handleSaveClient}>
+              <Form onSubmit={handleSaveClient} className="p-3">
+                <Row>
+                <Col md="3">
+              
                 <FormGroup>
-                <Col xl="4" className="mb-4"> </Col>
+                
                   <Label className="form-control-label">Nome do Cliente</Label>
                   <Input
                     type="text"
-                    name="nome_cliente"
-                    id="nome_cliente"
-                    value={selectedClient ? selectedClient.nome_cliente : newClient.nome_cliente}
+                    name="nome"
+                    id="nome"
+                    value={selectedClient ? selectedClient.nome : newClient.nome}
                     onChange={handleInputChange}
                     placeholder="Digite o nome do cliente"
                     required
                   />
                 </FormGroup>
+                </Col>
+                <Col md="3">
+                <FormGroup>
                 
+                  <Label className="form-control-label">Telefone</Label>
+                  <Input
+                    type="number"
+                    name="telefone"
+                    id="telefone"
+                    value={selectedClient ? selectedClient.telefone : newClient.telefone}
+                    onChange={handleInputChange}
+                    placeholder="(11) 90909-0000"
+                    required
+                  />
+                </FormGroup>
+                </Col>
+                <Col md="3">
+                <FormGroup>
+                
+                  <Label className="form-control-label">E-mail</Label>
+                  <Input
+                    type="text"
+                    name="email"
+                    id="email"
+                    value={selectedClient ? selectedClient.email : newClient.email}
+                    onChange={handleInputChange}
+                    placeholder="exemplo@sistema.com.br"
+                    required
+                  />
+                </FormGroup>
+                </Col>
+                
+                </Row>
                 <Button type="submit" color="primary">
                   {selectedClient ? 'Modificar' : 'Cadastrar'}
                 </Button>
@@ -144,10 +162,42 @@ const ClientsList = () => {
                 )}
                 
               </Form>
+              </Card>
               </Col>
+        </Row>
+        <Row>
+          {/* Coluna da lista de clientes */}
+          
+          <Col>
+            <Card className="bg-default shadow">
+              <CardHeader className="bg-transparent border-0">
+                <h3 className="text-white mb-0">Lista de Clientes</h3>
+              </CardHeader>
+              <Table className="align-items-center table-dark table-flush" responsive>
+                <thead className="thead-dark">
+                  <tr>
+
+                    <th>Nome do Cliente</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {clients.map((client) => (
+                    <tr key={client.id} onClick={() => handleSelectClient(client)}>
+
+                      <td>{client.nome}</td>
+                      <td>{client.telefone}</td>
+                      <td>{client.email}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </Card>
           </Col>
-        </Row>
+          </Row>
+
+
       </Container>
     </>
   );
