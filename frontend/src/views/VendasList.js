@@ -21,7 +21,7 @@ const VendasList = () => {
   });
   const [clientes, setClientes] = useState([]);
   const [planos, setPlanos] = useState([]);
-  const [consultores, setConsultores] = useState([]);
+  const [consultor, setConsultores] = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:8000/api/clientes/')
@@ -32,7 +32,7 @@ const VendasList = () => {
       .then(response => setPlanos(response.data))
       .catch(error => console.error('Erro ao buscar planos', error));
 
-    axios.get('http://localhost:8000/api/consultores/')
+    axios.get('http://localhost:8000/api/consultor/')
       .then(response => setConsultores(response.data))
       .catch(error => console.error('Erro ao buscar consultores', error));
   }, []);
@@ -133,8 +133,8 @@ const VendasList = () => {
   }, [planos]);
 
   const consultoresMap = useMemo(() => {
-    return consultores.reduce((map, consultor) => {
-      map[consultor.id] = consultor.nome_consultor;
+    return consultor.reduce((map, consultor) => {
+      map[consultor.id] = consultor.nome;
       return map;
     }, {});
   }, [consultores]);
@@ -204,7 +204,7 @@ const VendasList = () => {
                   <Label for="consultor">Consultor</Label>
                   <Input type="select" name="consultor" id="consultor" value={selectedVenda ? selectedVenda.consultor : newVenda.consultor} onChange={handleInputChange} required>
                     <option value="">Selecione o consultor</option>
-                    {consultores.map(consultor => <option key={consultor.id} value={consultor.id}>{consultor.nome_consultor}</option>)}
+                    {consultor.map(consultor => <option key={consultor.id} value={consultor.id}>{consultor.nome}</option>)}
                   </Input>
                 </FormGroup>
                 <FormGroup>

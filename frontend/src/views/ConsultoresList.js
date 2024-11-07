@@ -4,12 +4,17 @@ import { Table, Container, Row, Card, CardHeader, Col, Button, Form, FormGroup, 
 import Header from 'components/Headers/Header';
 
 const ConsultoresList = () => {
-  const [consultores, setConsultores] = useState([]);
+  const [consultor, setConsultores] = useState([]);
   const [selectedConsultor, setSelectedConsultor] = useState(null);  // Consultor selecionado para edição
-  const [newConsultor, setNewConsultor] = useState({ nome_consultor: '' });
+  const [newConsultor, setNewConsultor] = useState({ 
+    nome: '',
+    telefone: '',
+    email: ''
+  
+  });
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/consultores/')
+    axios.get('http://localhost:8000/api/consultor/')
       .then((response) => {
         setConsultores(response.data);
       })
@@ -24,9 +29,9 @@ const ConsultoresList = () => {
 
     if (selectedConsultor) {
       // Atualizar consultor existente
-      axios.put(`http://localhost:8000/api/consultores/${selectedConsultor.id}/`, selectedConsultor)
+      axios.put(`http://localhost:8000/api/consultor/${selectedConsultor.id}/`, selectedConsultor)
         .then(() => {
-          setConsultores(consultores.map(consultor => consultor.id === selectedConsultor.id ? selectedConsultor : consultor));
+          setConsultores(consultor.map(consultor => consultor.id === selectedConsultor.id ? selectedConsultor : consultor));
           setSelectedConsultor(null);  // Limpa o formulário
         })
         .catch((error) => {
@@ -34,10 +39,10 @@ const ConsultoresList = () => {
         });
     } else {
       // Adicionar novo consultor
-      axios.post('http://localhost:8000/api/consultores/', newConsultor)
+      axios.post('http://localhost:8000/api/consultor/', newConsultor)
         .then((response) => {
-          setConsultores([...consultores, response.data]);
-          setNewConsultor({ nome_consultor: '' });  // Limpa o formulário
+          setConsultores([...consultor, response.data]);
+          setNewConsultor({ nome: '' });  // Limpa o formulário
         })
         .catch((error) => {
           console.error('Erro ao cadastrar consultor', error);
@@ -53,9 +58,9 @@ const ConsultoresList = () => {
   // Função para deletar consultor
   const handleDeleteConsultor = () => {
     if (selectedConsultor) {
-      axios.delete(`http://localhost:8000/api/consultores/${selectedConsultor.id}/`)
+      axios.delete(`http://localhost:8000/api/consultor/${selectedConsultor.id}/`)
         .then(() => {
-          setConsultores(consultores.filter(consultor => consultor.id !== selectedConsultor.id));
+          setConsultores(consultor.filter(consultor => consultor.id !== selectedConsultor.id));
           setSelectedConsultor(null);  // Limpa o formulário
         })
         .catch((error) => {
@@ -67,7 +72,7 @@ const ConsultoresList = () => {
   // Função para limpar o formulário e voltar ao estado de cadastro
   const handleNewConsultor = () => {
     setSelectedConsultor(null);
-    setNewConsultor({ nome_consultor: '' });
+    setNewConsultor({ nome: '' });
   };
 
   // Atualiza os valores no formulário
@@ -95,13 +100,17 @@ const ConsultoresList = () => {
                   <tr>
 
                     <th>Nome do Consultor</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {consultores.map((consultor) => (
+                  {consultor.map((consultor) => (
                     <tr key={consultor.id} onClick={() => handleSelectConsultor(consultor)}>
 
-                      <td>{consultor.nome_consultor}</td>
+                      <td>{consultor.nome}</td>
+                      <td>{consultor.telefone}</td>
+                      <td>{consultor.email}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -124,15 +133,38 @@ const ConsultoresList = () => {
                     <Label className="form-control-label">Nome do Consultor</Label>
                     <Input
                       type="text"
-                      name="nome_consultor"
-                      id="nome_consultor"
-                      value={selectedConsultor ? selectedConsultor.nome_consultor : newConsultor.nome_consultor}
+                      name="nome"
+                      id="nome"
+                      value={selectedConsultor ? selectedConsultor.nome : newConsultor.nome}
                       onChange={handleInputChange}
                       placeholder="Digite o nome do consultor"
                       required
                     />
                   </FormGroup>
-                  
+                  <FormGroup>
+                    <Label className="form-control-label">Telefone</Label>
+                    <Input
+                      type="number"
+                      name="telefone"
+                      id="telefone"
+                      value={selectedConsultor ? selectedConsultor.telefone : newConsultor.telefone}
+                      onChange={handleInputChange}
+                      placeholder="(11) 90000-0000"
+                      required
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label className="form-control-label">E-mail</Label>
+                    <Input
+                      type="text"
+                      name="email"
+                      id="email"
+                      value={selectedConsultor ? selectedConsultor.email : newConsultor.email}
+                      onChange={handleInputChange}
+                      placeholder="exemplo@sistema.com.br"
+                      required
+                    />
+                  </FormGroup>
                   <Button type="submit" color="primary">
                     {selectedConsultor ? 'Modificar' : 'Cadastrar'}
                   </Button>

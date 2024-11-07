@@ -89,12 +89,12 @@ axios.get('http://localhost:8000/api/parcela/')
   
   
 
-  const handleInputChangeComissao = (planoId, numero_parcela, porcentagem_comissao) => {
+  const handleInputChangeComissao = (planoId, numero_parcela, porcentagem_parcela) => {
     setComissoes(prevComissoes => ({
       ...prevComissoes,
       [`${planoId}-${numero_parcela}`]: {
         ...prevComissoes[`${planoId}-${numero_parcela}`],
-        porcentagem_comissao: porcentagem_comissao
+        porcentagem_parcela: porcentagem_parcela
       }
     }));
   };
@@ -106,7 +106,7 @@ axios.get('http://localhost:8000/api/parcela/')
   
     Array.from({ length: totalParcelas }).forEach((_, i) => {
       const numero_parcela = i + 1;
-      const porcentagem_comissao = comissoes[`${planoId}-${numero_parcela}`]?.porcentagem_comissao || '0';
+      const porcentagem_parcela = comissoes[`${planoId}-${numero_parcela}`]?.porcentagem_parcela || '0';
   
       if (comissoes[`${planoId}-${numero_parcela}`]?.id) {
         // Atualiza a comissão existente
@@ -114,7 +114,7 @@ axios.get('http://localhost:8000/api/parcela/')
         axios.put(`http://localhost:8000/api/parcela/${comissaoId}/`, {
           plano: planoId,
           numero_parcela,
-          porcentagem_comissao
+          porcentagem_parcela
         })
         .then(() => {
           console.log(`Parcela ${numero_parcela} do plano ${planoId} atualizada com sucesso.`);
@@ -127,7 +127,7 @@ axios.get('http://localhost:8000/api/parcela/')
         axios.post('http://localhost:8000/api/parcela/', {
           plano: planoId,
           numero_parcela,
-          porcentagem_comissao
+          porcentagem_parcela
         })
         .then((response) => {
           console.log(`Nova comissão criada para a parcela ${numero_parcela} do plano ${planoId}.`);
@@ -135,7 +135,7 @@ axios.get('http://localhost:8000/api/parcela/')
             ...prevComissoes,
             [`${planoId}-${numero_parcela}`]: {
               id: response.data.id,
-              porcentagem_comissao: porcentagem_comissao
+              porcentagem_parcela: porcentagem_parcela
             }
           }));
         })
@@ -333,7 +333,7 @@ axios.get('http://localhost:8000/api/parcela/')
       <tr key={plano.id}>
         <td>
           <Button color="info" onClick={() => setSelectedPlano(plano)} size="sm">Modificar</Button>
-          <Button color="success" onClick={() => handleSaveAllComissoes(plano.id)} size="sm">Salvar Comissões</Button>
+          
         </td>
         <td>{plano.operadora}</td>
         <td>{plano.tipo}</td>
