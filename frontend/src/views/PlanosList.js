@@ -12,7 +12,10 @@ const PlanosList = () => {
     operadora: '',
     tipo: '',
     comissionamento_total: '',
-    numero_parcelas: ''
+    numero_parcelas: '',
+    taxa_plano_valor: '',
+    taxa_plano_tipo: ''
+
   });
   
 
@@ -167,7 +170,9 @@ axios.get('http://localhost:8000/api/parcela/')
       operadora: '',
       tipo: '',
       comissionamento_total: '',
-      numero_parcelas: ''
+      numero_parcelas: '',
+      taxa_plano_valor: '',
+      taxa_plano_tipo: ''
     });
   };
 
@@ -204,7 +209,10 @@ axios.get('http://localhost:8000/api/parcela/')
             operadora: '',
             tipo: '',
             comissionamento_total: '',
-            numero_parcelas: ''
+            numero_parcelas: '',
+            taxa_plano_valor: '',
+            taxa_plano_tipo: ''
+
           });
         })
         .catch((error) => {
@@ -266,9 +274,9 @@ axios.get('http://localhost:8000/api/parcela/')
         </Input>
       </FormGroup>
     </Col>
-    <Col md="3">
+    <Col md="2">
       <FormGroup>
-        <Label for="comissionamento_total">Comissionamento Total (%)</Label>
+        <Label for="comissionamento_total">Total (%)</Label>
         <Input
           type="number"
           step="0.01"
@@ -281,18 +289,49 @@ axios.get('http://localhost:8000/api/parcela/')
         />
       </FormGroup>
     </Col>
-    <Col md="3">
+    <Col md="1">
       <FormGroup>
-        <Label for="numero_parcelas">Número de Parcelas</Label>
+        <Label for="numero_parcelas">Nº Parcelas</Label>
         <Input
           type="number"
           name="numero_parcelas"
           id="numero_parcelas"
           value={selectedPlano ? selectedPlano.numero_parcelas : newPlano.numero_parcelas}
           onChange={handleInputChange}
-          placeholder="Número de parcelas"
+          placeholder="Quantidade"
           required
         />
+      </FormGroup>
+    </Col>
+    <Col md="1">
+      <FormGroup>
+        <Label for="taxa_plano_valor">Taxa</Label>
+        <Input
+          type="number"
+          name="taxa_plano_valor"
+          id="taxa_plano_valor"
+          value={selectedPlano ? selectedPlano.taxa_plano_valor : newPlano.taxa_plano_valor}
+          onChange={handleInputChange}
+          placeholder="Valor"
+          required
+        />
+      </FormGroup>
+    </Col>
+    <Col md="1">
+      <FormGroup>
+      <Label for="taxa_plano_tipo">Tipo Taxa</Label>
+        <Input
+          type="select"
+          name="taxa_plano_tipo"
+          id="taxa_plano_tipo"
+          value={selectedPlano ? selectedPlano.taxa_plano_tipo : newPlano.taxa_plano_tipo}
+          onChange={handleInputChange}
+          required
+        >
+          <option value="">Valor ou %</option>
+          <option value="Valor Fixo">Valor</option>
+          <option value="Porcentagem">%</option>
+        </Input>
       </FormGroup>
     </Col>
   </Row>
@@ -321,7 +360,8 @@ axios.get('http://localhost:8000/api/parcela/')
       <th>Ações</th>
       <th>Operadora</th>
       <th>Tipo do Plano</th>
-      <th>Comissionamento Total (%)</th>
+      <th>Total (%)</th>
+      <th>Taxa</th>
       {/* Cabeçalhos das parcelas */}
       {Array.from({ length: Math.max(...planos.map(plano => plano.numero_parcelas)) }, (_, i) => (
         <th key={i}>Parcela {i + 1} (%)</th>
@@ -338,6 +378,7 @@ axios.get('http://localhost:8000/api/parcela/')
         <td>{plano.operadora}</td>
         <td>{plano.tipo}</td>
         <td>{plano.comissionamento_total}</td>
+        <td>{plano.taxa_plano_valor}</td>
         {/* Inputs das parcelas */}
         {Array.from({ length: plano.numero_parcelas }, (_, i) => (
           <td key={i}>

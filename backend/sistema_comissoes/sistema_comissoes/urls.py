@@ -9,6 +9,7 @@ router.register(r'consultor', views.ConsultorViewSet)
 router.register(r'controlederecebimento', views.ControleDeRecebimentoViewSet)
 router.register(r'parcela', views.ParcelaViewSet)
 router.register(r'plano', views.PlanoViewSet)
+router.register(r'venda', views.VendaViewSet)
 # Registre as demais ViewSets...
 
 urlpatterns = [

@@ -12,15 +12,13 @@ const VendasList = () => {
     consultor: '',
     numero_proposta: '',
     valor_plano: '',
+    desconto_consultor: '',
     data_venda: '',
     data_vigencia: '',
     data_vencimento: '',
-    desconto: '',
-    taxa: '',
-    valor_real: ''
   });
   const [clientes, setClientes] = useState([]);
-  const [planos, setPlanos] = useState([]);
+  const [plano, setPlanos] = useState([]);
   const [consultor, setConsultores] = useState([]);
 
   useEffect(() => {
@@ -28,7 +26,7 @@ const VendasList = () => {
       .then(response => setClientes(response.data))
       .catch(error => console.error('Erro ao buscar clientes', error));
 
-    axios.get('http://localhost:8000/api/planos/')
+    axios.get('http://localhost:8000/api/plano/')
       .then(response => setPlanos(response.data))
       .catch(error => console.error('Erro ao buscar planos', error));
 
@@ -38,7 +36,7 @@ const VendasList = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/vendas/')
+    axios.get('http://localhost:8000/api/venda/')
       .then(response => setVendas(response.data))
       .catch(error => console.error('Erro ao buscar vendas', error));
   }, []);
@@ -48,14 +46,14 @@ const VendasList = () => {
     const vendaData = selectedVenda || newVenda;
 
     if (selectedVenda) {
-      axios.put(`http://localhost:8000/api/vendas/${selectedVenda.id}/`, vendaData)
-        .then(() => {
-          setVendas(vendas.map(venda => venda.id === selectedVenda.id ? vendaData : venda));
+      axios.put(`http://localhost:8000/api/venda/${selectedVenda.id}/`, vendaData)
+        .then(response => {
+          setVendas(vendas.map(venda => venda.id === selectedVenda.id ? response.data : venda));
           setSelectedVenda(null);
         })
         .catch(error => console.error('Erro ao modificar venda', error));
     } else {
-      axios.post('http://localhost:8000/api/vendas/', vendaData)
+      axios.post('http://localhost:8000/api/venda/', vendaData)
         .then(response => {
           setVendas([...vendas, response.data]);
           setNewVenda({
@@ -64,12 +62,10 @@ const VendasList = () => {
             consultor: '',
             numero_proposta: '',
             valor_plano: '',
+            desconto_consultor: '',
             data_venda: '',
             data_vigencia: '',
             data_vencimento: '',
-            desconto: '',
-            taxa: '',
-            valor_real: ''
           });
         })
         .catch(error => console.error('Erro ao cadastrar venda', error));
@@ -82,7 +78,7 @@ const VendasList = () => {
 
   const handleDeleteVenda = () => {
     if (selectedVenda) {
-      axios.delete(`http://localhost:8000/api/vendas/${selectedVenda.id}/`)
+      axios.delete(`http://localhost:8000/api/venda/${selectedVenda.id}/`)
         .then(() => {
           setVendas(vendas.filter(venda => venda.id !== selectedVenda.id));
           setSelectedVenda(null);
@@ -99,12 +95,10 @@ const VendasList = () => {
       consultor: '',
       numero_proposta: '',
       valor_plano: '',
+      desconto_consultor: '',
       data_venda: '',
       data_vigencia: '',
       data_vencimento: '',
-      desconto: '',
-      taxa: '',
-      valor_real: ''
     });
   };
 
@@ -126,11 +120,11 @@ const VendasList = () => {
   }, [clientes]);
 
   const planosMap = useMemo(() => {
-    return planos.reduce((map, plano) => {
-      map[plano.id] = plano.nome_plano;
+    return plano.reduce((map, plano) => {
+      map[plano.id] = `${plano.operadora} - ${plano.tipo}`;
       return map;
     }, {});
-  }, [planos]);
+  }, [plano]);
 
   const consultoresMap = useMemo(() => {
     return consultor.reduce((map, consultor) => {
@@ -154,20 +148,26 @@ const VendasList = () => {
                 <thead className="thead-dark">
                   <tr>
                     <th>ID</th>
+                    <th>Número Proposta</th>
                     <th>Cliente</th>
                     <th>Plano</th>
                     <th>Consultor</th>
-                    <th>Valor Real</th>
+                    <th>Valor Plano</th>
+                    <th>Desconto Consultor</th>
+                    {/* Adicione mais colunas se necessário */}
                   </tr>
                 </thead>
                 <tbody>
                   {vendas.map(venda => (
                     <tr key={venda.id} onClick={() => handleSelectVenda(venda)}>
                       <td>{venda.id}</td>
+                      <td>{venda.numero_proposta}</td>
                       <td>{clientesMap[venda.cliente] || venda.cliente}</td>
                       <td>{planosMap[venda.plano] || venda.plano}</td>
                       <td>{consultoresMap[venda.consultor] || venda.consultor}</td>
-                      <td>{venda.valor_real}</td>
+                      <td>{venda.valor_plano}</td>
+                      <td>{venda.desconto_consultor}</td>
+                      {/* Exiba o valor líquido se ele estiver disponível na API */}
                     </tr>
                   ))}
                 </tbody>
@@ -197,7 +197,7 @@ const VendasList = () => {
                   <Label for="plano">Plano</Label>
                   <Input type="select" name="plano" id="plano" value={selectedVenda ? selectedVenda.plano : newVenda.plano} onChange={handleInputChange} required>
                     <option value="">Selecione o plano</option>
-                    {planos.map(plano => <option key={plano.id} value={plano.id}>{plano.nome_plano}</option>)}
+                    {plano.map(plano => <option key={plano.id} value={plano.id}>{plano.operadora} - {plano.tipo}</option>)}
                   </Input>
                 </FormGroup>
                 <FormGroup>
@@ -216,6 +216,10 @@ const VendasList = () => {
                   <Input type="number" name="valor_plano" id="valor_plano" value={selectedVenda ? selectedVenda.valor_plano : newVenda.valor_plano} onChange={handleInputChange} required />
                 </FormGroup>
                 <FormGroup>
+                  <Label for="desconto_consultor">Desconto do Consultor</Label>
+                  <Input type="number" name="desconto_consultor" id="desconto_consultor" value={selectedVenda ? selectedVenda.desconto_consultor : newVenda.desconto_consultor} onChange={handleInputChange} />
+                </FormGroup>
+                <FormGroup>
                   <Label for="data_venda">Data da Venda</Label>
                   <Input type="date" name="data_venda" id="data_venda" value={selectedVenda ? selectedVenda.data_venda : newVenda.data_venda} onChange={handleInputChange} required />
                 </FormGroup>
@@ -227,19 +231,7 @@ const VendasList = () => {
                   <Label for="data_vencimento">Data de Vencimento</Label>
                   <Input type="date" name="data_vencimento" id="data_vencimento" value={selectedVenda ? selectedVenda.data_vencimento : newVenda.data_vencimento} onChange={handleInputChange} required />
                 </FormGroup>
-                <FormGroup>
-                  <Label for="desconto">Desconto</Label>
-                  <Input type="number" name="desconto" id="desconto" value={selectedVenda ? selectedVenda.desconto : newVenda.desconto} onChange={handleInputChange} />
-                </FormGroup>
-                <FormGroup>
-                  <Label for="taxa">Taxa</Label>
-                  <Input type="number" name="taxa" id="taxa" value={selectedVenda ? selectedVenda.taxa : newVenda.taxa} onChange={handleInputChange} />
-                </FormGroup>
-                <FormGroup>
-                  <Label for="valor_real">Valor Real</Label>
-                  <Input type="number" name="valor_real" id="valor_real" value={selectedVenda ? selectedVenda.valor_real : newVenda.valor_real} onChange={handleInputChange} required />
-                </FormGroup>
-                
+
                 <Button type="submit" color="primary">
                   {selectedVenda ? 'Modificar' : 'Cadastrar'}
                 </Button>

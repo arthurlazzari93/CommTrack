@@ -7,7 +7,6 @@ class Cliente(models.Model):
     telefone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
 
-
     def __str__(self):
         return self.nome
 
@@ -18,17 +17,23 @@ class Plano(models.Model):
         ('Adesão', 'Adesão'),
     )
 
+    TAXA_TIPO_CHOICES = (
+        ('Valor Fixo', 'Valor Fixo'),
+        ('Porcentagem', 'Porcentagem'),
+    )
+
     operadora = models.CharField(max_length=255)
     comissionamento_total = models.DecimalField(max_digits=6, decimal_places=2)  # Ex: 300.00%
     tipo = models.CharField(max_length=50, choices=TIPO_CHOICES)
     numero_parcelas = models.PositiveIntegerField()
+    taxa_plano_valor = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    taxa_plano_tipo = models.CharField(max_length=20, choices=TAXA_TIPO_CHOICES, default='Valor Fixo')
 
     class Meta:
         unique_together = ('operadora', 'tipo')
 
     def __str__(self):
         return f"{self.operadora} - {self.tipo}"
-
 
 class Parcela(models.Model):
     plano = models.ForeignKey(Plano, on_delete=models.CASCADE)
@@ -53,13 +58,22 @@ class Venda(models.Model):
     consultor = models.ForeignKey(Consultor, on_delete=models.CASCADE)
     valor_plano = models.DecimalField(max_digits=10, decimal_places=2)
     desconto_consultor = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    taxa_plano = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     data_venda = models.DateField(default=timezone.now)
     data_vigencia = models.DateField()
     data_vencimento = models.DateField()
 
     def valor_liquido(self):
-        return self.valor_plano - self.desconto_consultor - self.taxa_plano
+        valor = self.valor_plano - self.desconto_consultor
+
+        taxa_valor = self.plano.taxa_plano_valor
+        taxa_tipo = self.plano.taxa_plano_tipo
+
+        if taxa_tipo == 'Valor Fixo':
+            valor -= taxa_valor
+        elif taxa_tipo == 'Porcentagem':
+            valor -= valor * (taxa_valor / 100)
+
+        return valor
 
     def __str__(self):
         return f"Proposta {self.numero_proposta} - {self.cliente.nome}"
@@ -92,6 +106,7 @@ class ControleDeRecebimento(models.Model):
     STATUS_CHOICES = (
         ('Recebido', 'Recebido'),
         ('Não Recebido', 'Não Recebido'),
+        ('Atrasado', 'Atrasado'),
     )
     venda = models.ForeignKey(Venda, on_delete=models.CASCADE)
     parcela = models.ForeignKey(Parcela, on_delete=models.CASCADE)
