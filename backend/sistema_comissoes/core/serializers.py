@@ -21,12 +21,18 @@ class ConsultorSerializer(serializers.ModelSerializer):
         model = Consultor
         fields = '__all__'
 
-class VendaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Venda
-        fields = '__all__'
+
 
 class ControleDeRecebimentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ControleDeRecebimento
+        fields = '__all__'
+
+
+class VendaSerializer(serializers.ModelSerializer):
+    cliente = ClienteSerializer()
+    parcelas_recebimento = ControleDeRecebimentoSerializer(source='controlederecebimento_set', many=True)
+
+    class Meta:
+        model = Venda
         fields = '__all__'

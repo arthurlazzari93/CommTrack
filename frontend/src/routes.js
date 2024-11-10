@@ -12,6 +12,7 @@ import ConsultoresList from "views/ConsultoresList.js";
 import VendasList from "views/VendasList";
 import Profile from "views/examples/Profile.js";
 import ControleList from "views/ControleList.js";
+import ControleRecebimentoPanel from "views/ControleRecebimentoPanel.js";
 
 var routes = [
   {
@@ -84,6 +85,13 @@ var routes = [
     name: "Controle de Recebimento",
     icon: "ni ni-money-coins text-green",
     component: <ControleList />,
+    layout: "/admin",
+  },
+  {
+    path: "/controle-recebimento-panel",
+    name: "Painel de Comissões",
+    icon: "ni ni-money-coins text-green",
+    component: <ControleRecebimentoPanel />,
     layout: "/admin",
   }
   
