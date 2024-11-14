@@ -11,7 +11,6 @@ import PlanosList from 'views/PlanosList.js';
 import ConsultoresList from "views/ConsultoresList.js";
 import VendasList from "views/VendasList";
 import Profile from "views/examples/Profile.js";
-import ControleList from "views/ControleList.js";
 import ControleRecebimentoPanel from "views/ControleRecebimentoPanel.js";
 
 var routes = [
