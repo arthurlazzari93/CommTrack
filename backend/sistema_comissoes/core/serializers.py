@@ -31,8 +31,11 @@ class ControleDeRecebimentoSerializer(serializers.ModelSerializer):
 
 class VendaSerializer(serializers.ModelSerializer):
     cliente = ClienteSerializer()
-    parcelas_recebimento = ControleDeRecebimentoSerializer(source='controlederecebimento_set', many=True)
+    plano = PlanoSerializer()
+    consultor = ConsultorSerializer()
+    parcelas_recebimento = ControleDeRecebimentoSerializer(source='controlederecebimento_set', many=True, read_only=True)
 
     class Meta:
         model = Venda
         fields = '__all__'
+

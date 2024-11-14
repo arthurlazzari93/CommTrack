@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Container, Row, Card, CardHeader, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import Header from 'components/Headers/Header';
@@ -18,8 +18,8 @@ const VendasList = () => {
     data_vencimento: '',
   });
   const [clientes, setClientes] = useState([]);
-  const [plano, setPlanos] = useState([]);
-  const [consultor, setConsultores] = useState([]);
+  const [planos, setPlanos] = useState([]);
+  const [consultores, setConsultores] = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:8000/api/clientes/')
@@ -43,15 +43,25 @@ const VendasList = () => {
 
   const handleSaveVenda = (e) => {
     e.preventDefault();
-    const vendaData = selectedVenda || newVenda;
-
+    const vendaData = {
+      ...selectedVenda || newVenda,
+      cliente: selectedVenda ? selectedVenda.cliente : newVenda.cliente,
+      plano: selectedVenda ? selectedVenda.plano : newVenda.plano,
+      consultor: selectedVenda ? selectedVenda.consultor : newVenda.consultor,
+    };
+  
+    console.log('Dados da venda:', vendaData);
+  
     if (selectedVenda) {
       axios.put(`http://localhost:8000/api/venda/${selectedVenda.id}/`, vendaData)
         .then(response => {
           setVendas(vendas.map(venda => venda.id === selectedVenda.id ? response.data : venda));
           setSelectedVenda(null);
         })
-        .catch(error => console.error('Erro ao modificar venda', error));
+        .catch(error => {
+          console.error('Erro ao modificar venda:', error.response.data);
+          alert('Erro ao modificar venda: ' + JSON.stringify(error.response.data));
+        });
     } else {
       axios.post('http://localhost:8000/api/venda/', vendaData)
         .then(response => {
@@ -68,12 +78,22 @@ const VendasList = () => {
             data_vencimento: '',
           });
         })
-        .catch(error => console.error('Erro ao cadastrar venda', error));
+        .catch(error => {
+          console.error('Erro ao cadastrar venda:', error.response.data);
+          alert('Erro ao cadastrar venda: ' + JSON.stringify(error.response.data));
+        });
     }
   };
+  
+  
 
   const handleSelectVenda = (venda) => {
-    setSelectedVenda(venda);
+    setSelectedVenda({
+      ...venda,
+      cliente: venda.cliente.id,
+      plano: venda.plano.id,
+      consultor: venda.consultor.id,
+    });
   };
 
   const handleDeleteVenda = () => {
@@ -111,28 +131,6 @@ const VendasList = () => {
     }
   };
 
-  // Criar mapas para acessos rápidos
-  const clientesMap = useMemo(() => {
-    return clientes.reduce((map, cliente) => {
-      map[cliente.id] = cliente.nome;
-      return map;
-    }, {});
-  }, [clientes]);
-
-  const planosMap = useMemo(() => {
-    return plano.reduce((map, plano) => {
-      map[plano.id] = `${plano.operadora} - ${plano.tipo}`;
-      return map;
-    }, {});
-  }, [plano]);
-
-  const consultoresMap = useMemo(() => {
-    return consultor.reduce((map, consultor) => {
-      map[consultor.id] = consultor.nome;
-      return map;
-    }, {});
-  }, [consultor]);
-
   return (
     <>
       <Header />
@@ -154,7 +152,6 @@ const VendasList = () => {
                     <th>Consultor</th>
                     <th>Valor Plano</th>
                     <th>Desconto Consultor</th>
-                    {/* Adicione mais colunas se necessário */}
                   </tr>
                 </thead>
                 <tbody>
@@ -162,12 +159,11 @@ const VendasList = () => {
                     <tr key={venda.id} onClick={() => handleSelectVenda(venda)}>
                       <td>{venda.id}</td>
                       <td>{venda.numero_proposta}</td>
-                      <td>{clientesMap[venda.cliente] || venda.cliente}</td>
-                      <td>{planosMap[venda.plano] || venda.plano}</td>
-                      <td>{consultoresMap[venda.consultor] || venda.consultor}</td>
+                      <td>{venda.cliente.nome}</td>
+                      <td>{venda.plano.operadora} - {venda.plano.tipo}</td>
+                      <td>{venda.consultor.nome}</td>
                       <td>{venda.valor_plano}</td>
                       <td>{venda.desconto_consultor}</td>
-                      {/* Exiba o valor líquido se ele estiver disponível na API */}
                     </tr>
                   ))}
                 </tbody>
@@ -188,23 +184,52 @@ const VendasList = () => {
                 {/* Formulário de entrada de dados */}
                 <FormGroup>
                   <Label for="cliente">Cliente</Label>
-                  <Input type="select" name="cliente" id="cliente" value={selectedVenda ? selectedVenda.cliente : newVenda.cliente} onChange={handleInputChange} required>
+                  <Input
+                    type="select"
+                    name="cliente"
+                    id="cliente"
+                    value={selectedVenda ? selectedVenda.cliente : newVenda.cliente}
+                    onChange={handleInputChange}
+                    required
+                  >
                     <option value="">Selecione o cliente</option>
-                    {clientes.map(cliente => <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>)}
+                    {clientes.map(cliente => (
+                      <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>
+                    ))}
                   </Input>
                 </FormGroup>
                 <FormGroup>
                   <Label for="plano">Plano</Label>
-                  <Input type="select" name="plano" id="plano" value={selectedVenda ? selectedVenda.plano : newVenda.plano} onChange={handleInputChange} required>
+                  <Input
+                    type="select"
+                    name="plano"
+                    id="plano"
+                    value={selectedVenda ? selectedVenda.plano : newVenda.plano}
+                    onChange={handleInputChange}
+                    required
+                  >
                     <option value="">Selecione o plano</option>
-                    {plano.map(plano => <option key={plano.id} value={plano.id}>{plano.operadora} - {plano.tipo}</option>)}
+                    {planos.map(plano => (
+                      <option key={plano.id} value={plano.id}>
+                        {plano.operadora} - {plano.tipo}
+                      </option>
+                    ))}
                   </Input>
                 </FormGroup>
                 <FormGroup>
                   <Label for="consultor">Consultor</Label>
-                  <Input type="select" name="consultor" id="consultor" value={selectedVenda ? selectedVenda.consultor : newVenda.consultor} onChange={handleInputChange} required>
+                  <Input
+                    type="select"
+                    name="consultor"
+                    id="consultor"
+                    value={selectedVenda ? selectedVenda.consultor : newVenda.consultor}
+                    onChange={handleInputChange}
+                    required
+                  >
                     <option value="">Selecione o consultor</option>
-                    {consultor.map(consultor => <option key={consultor.id} value={consultor.id}>{consultor.nome}</option>)}
+                    {consultores.map(consultor => (
+                      <option key={consultor.id} value={consultor.id}>{consultor.nome}</option>
+                    ))}
                   </Input>
                 </FormGroup>
                 <FormGroup>

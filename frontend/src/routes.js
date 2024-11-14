@@ -81,13 +81,6 @@ var routes = [
     
   },
   {
-    path: "/controle-recebimento",
-    name: "Controle de Recebimento",
-    icon: "ni ni-money-coins text-green",
-    component: <ControleList />,
-    layout: "/admin",
-  },
-  {
     path: "/controle-recebimento-panel",
     name: "Painel de Comissões",
     icon: "ni ni-money-coins text-green",
