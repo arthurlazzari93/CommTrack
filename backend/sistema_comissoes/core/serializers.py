@@ -30,9 +30,16 @@ class ControleDeRecebimentoSerializer(serializers.ModelSerializer):
 
 
 class VendaSerializer(serializers.ModelSerializer):
-    cliente = ClienteSerializer()
-    plano = PlanoSerializer()
-    consultor = ConsultorSerializer()
+    # Campos de leitura (read-only)
+    cliente = ClienteSerializer(read_only=True)
+    plano = PlanoSerializer(read_only=True)
+    consultor = ConsultorSerializer(read_only=True)
+    
+    # Campos de escrita (write-only)
+    cliente_id = serializers.PrimaryKeyRelatedField(queryset=Cliente.objects.all(), write_only=True, source='cliente')
+    plano_id = serializers.PrimaryKeyRelatedField(queryset=Plano.objects.all(), write_only=True, source='plano')
+    consultor_id = serializers.PrimaryKeyRelatedField(queryset=Consultor.objects.all(), write_only=True, source='consultor')
+    
     parcelas_recebimento = ControleDeRecebimentoSerializer(source='controlederecebimento_set', many=True, read_only=True)
 
     class Meta:

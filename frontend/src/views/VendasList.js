@@ -7,9 +7,9 @@ const VendasList = () => {
   const [vendas, setVendas] = useState([]);
   const [selectedVenda, setSelectedVenda] = useState(null);
   const [newVenda, setNewVenda] = useState({
-    cliente: '',
-    plano: '',
-    consultor: '',
+    cliente_id: '',
+    plano_id: '',
+    consultor_id: '',
     numero_proposta: '',
     valor_plano: '',
     desconto_consultor: '',
@@ -45,12 +45,7 @@ const VendasList = () => {
     e.preventDefault();
     const vendaData = {
       ...selectedVenda || newVenda,
-      cliente: selectedVenda ? selectedVenda.cliente : newVenda.cliente,
-      plano: selectedVenda ? selectedVenda.plano : newVenda.plano,
-      consultor: selectedVenda ? selectedVenda.consultor : newVenda.consultor,
     };
-  
-    console.log('Dados da venda:', vendaData);
   
     if (selectedVenda) {
       axios.put(`http://localhost:8000/api/venda/${selectedVenda.id}/`, vendaData)
@@ -67,9 +62,9 @@ const VendasList = () => {
         .then(response => {
           setVendas([...vendas, response.data]);
           setNewVenda({
-            cliente: '',
-            plano: '',
-            consultor: '',
+            cliente_id: '',
+            plano_id: '',
+            consultor_id: '',
             numero_proposta: '',
             valor_plano: '',
             desconto_consultor: '',
@@ -85,14 +80,13 @@ const VendasList = () => {
     }
   };
   
-  
 
   const handleSelectVenda = (venda) => {
     setSelectedVenda({
       ...venda,
-      cliente: venda.cliente.id,
-      plano: venda.plano.id,
-      consultor: venda.consultor.id,
+      cliente_id: venda.cliente.id,
+      plano_id: venda.plano.id,
+      consultor_id: venda.consultor.id,
     });
   };
 
@@ -124,12 +118,25 @@ const VendasList = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    let parsedValue = value;
+  
+    // Converter campos numéricos para números
+    if (['valor_plano', 'desconto_consultor'].includes(name)) {
+      parsedValue = value ? parseFloat(value) : '';
+    }
+  
+    // Converter IDs para inteiros
+    if (['cliente_id', 'plano_id', 'consultor_id'].includes(name)) {
+      parsedValue = value ? parseInt(value, 10) : '';
+    }
+  
     if (selectedVenda) {
-      setSelectedVenda({ ...selectedVenda, [name]: value });
+      setSelectedVenda({ ...selectedVenda, [name]: parsedValue });
     } else {
-      setNewVenda({ ...newVenda, [name]: value });
+      setNewVenda({ ...newVenda, [name]: parsedValue });
     }
   };
+  
 
   return (
     <>
@@ -183,55 +190,53 @@ const VendasList = () => {
               <Form onSubmit={handleSaveVenda} className="p-3">
                 {/* Formulário de entrada de dados */}
                 <FormGroup>
-                  <Label for="cliente">Cliente</Label>
-                  <Input
-                    type="select"
-                    name="cliente"
-                    id="cliente"
-                    value={selectedVenda ? selectedVenda.cliente : newVenda.cliente}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Selecione o cliente</option>
-                    {clientes.map(cliente => (
-                      <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>
-                    ))}
-                  </Input>
-                </FormGroup>
-                <FormGroup>
-                  <Label for="plano">Plano</Label>
-                  <Input
-                    type="select"
-                    name="plano"
-                    id="plano"
-                    value={selectedVenda ? selectedVenda.plano : newVenda.plano}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Selecione o plano</option>
-                    {planos.map(plano => (
-                      <option key={plano.id} value={plano.id}>
-                        {plano.operadora} - {plano.tipo}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-                <FormGroup>
-                  <Label for="consultor">Consultor</Label>
-                  <Input
-                    type="select"
-                    name="consultor"
-                    id="consultor"
-                    value={selectedVenda ? selectedVenda.consultor : newVenda.consultor}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Selecione o consultor</option>
-                    {consultores.map(consultor => (
-                      <option key={consultor.id} value={consultor.id}>{consultor.nome}</option>
-                    ))}
-                  </Input>
-                </FormGroup>
+  <Label for="cliente_id">Cliente</Label>
+  <Input
+    type="select"
+    name="cliente_id"
+    id="cliente_id"
+    value={selectedVenda ? selectedVenda.cliente_id : newVenda.cliente_id}
+    onChange={handleInputChange}
+    required
+  >
+    <option value="">Selecione o cliente</option>
+    {clientes.map(cliente => (
+      <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>
+    ))}
+  </Input>
+</FormGroup>
+<FormGroup>
+  <Label for="plano_id">Plano</Label>
+  <Input
+    type="select"
+    name="plano_id"
+    id="plano_id"
+    value={selectedVenda ? selectedVenda.plano_id : newVenda.plano_id}
+    onChange={handleInputChange}
+    required
+  >
+    <option value="">Selecione o plano</option>
+    {planos.map(plano => (
+      <option key={plano.id} value={plano.id}>{plano.operadora} - {plano.tipo}</option>
+    ))}
+  </Input>
+</FormGroup>
+<FormGroup>
+  <Label for="consultor_id">Consultor</Label>
+  <Input
+    type="select"
+    name="consultor_id"
+    id="consultor_id"
+    value={selectedVenda ? selectedVenda.consultor_id : newVenda.consultor_id}
+    onChange={handleInputChange}
+    required
+  >
+    <option value="">Selecione o consultor</option>
+    {consultores.map(consultor => (
+      <option key={consultor.id} value={consultor.id}>{consultor.nome}</option>
+    ))}
+  </Input>
+</FormGroup>
                 <FormGroup>
                   <Label for="numero_proposta">Número da Proposta</Label>
                   <Input type="text" name="numero_proposta" id="numero_proposta" value={selectedVenda ? selectedVenda.numero_proposta : newVenda.numero_proposta} onChange={handleInputChange} required />
