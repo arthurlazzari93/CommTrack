@@ -56,12 +56,16 @@ const ControleRecebimentoPanel = () => {
         const updatedRecebimento = response.data;
         setVendas((prevVendas) =>
           prevVendas.map((venda) => {
-            if (venda.id === updatedRecebimento.venda) {
+            const hasRecebimento = venda.parcelas_recebimento.some(
+              (parcela) => parcela.id === updatedRecebimento.id
+            );
+            if (hasRecebimento) {
+              const updatedParcelas = venda.parcelas_recebimento.map((parcela) =>
+                parcela.id === updatedRecebimento.id ? updatedRecebimento : parcela
+              );
               return {
                 ...venda,
-                parcelas_recebimento: venda.parcelas_recebimento.map((parcela) =>
-                  parcela.id === updatedRecebimento.id ? updatedRecebimento : parcela
-                ),
+                parcelas_recebimento: updatedParcelas,
               };
             }
             return venda;
@@ -78,13 +82,14 @@ const ControleRecebimentoPanel = () => {
         console.error('Erro ao atualizar recebimento:', error);
       });
   }, []);
-
+  
   const debouncedUpdateRecebimento = useCallback(
     debounce((recebimentoId, data) => {
       updateRecebimento(recebimentoId, data);
     }, 500),
     [updateRecebimento]
   );
+    
 
   const handleInputChange = (recebimentoId, field, value) => {
     setEditingRecebimentos((prevState) => ({
@@ -114,12 +119,16 @@ const ControleRecebimentoPanel = () => {
         const updatedRecebimento = response.data;
         setVendas((prevVendas) =>
           prevVendas.map((venda) => {
-            if (venda.id === updatedRecebimento.venda) {
+            const hasRecebimento = venda.parcelas_recebimento.some(
+              (parcela) => parcela.id === updatedRecebimento.id
+            );
+            if (hasRecebimento) {
+              const updatedParcelas = venda.parcelas_recebimento.map((parcela) =>
+                parcela.id === updatedRecebimento.id ? updatedRecebimento : parcela
+              );
               return {
                 ...venda,
-                parcelas_recebimento: venda.parcelas_recebimento.map((parcela) =>
-                  parcela.id === updatedRecebimento.id ? updatedRecebimento : parcela
-                ),
+                parcelas_recebimento: updatedParcelas,
               };
             }
             return venda;
@@ -130,6 +139,7 @@ const ControleRecebimentoPanel = () => {
         console.error('Erro ao marcar parcela como recebida:', error);
       });
   };
+  
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
