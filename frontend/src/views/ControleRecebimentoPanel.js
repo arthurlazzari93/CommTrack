@@ -12,6 +12,7 @@ import {
   Button,
   Input,
   FormGroup,
+  Progress,
   Label,
   Form,
 } from 'reactstrap';
@@ -82,14 +83,13 @@ const ControleRecebimentoPanel = () => {
         console.error('Erro ao atualizar recebimento:', error);
       });
   }, []);
-  
+
   const debouncedUpdateRecebimento = useCallback(
     debounce((recebimentoId, data) => {
       updateRecebimento(recebimentoId, data);
     }, 500),
     [updateRecebimento]
   );
-    
 
   const handleInputChange = (recebimentoId, field, value) => {
     setEditingRecebimentos((prevState) => ({
@@ -139,7 +139,6 @@ const ControleRecebimentoPanel = () => {
         console.error('Erro ao marcar parcela como recebida:', error);
       });
   };
-  
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -180,6 +179,12 @@ const ControleRecebimentoPanel = () => {
     return numeroPropostaMatch || clienteNomeMatch;
   });
 
+  const getProgressColor = (percentual) => {
+    if (percentual === 100) return 'success';
+    if (percentual >= 50) return 'warning';
+    return 'danger';
+  };
+  
   return (
     <>
       <Header />
@@ -214,120 +219,144 @@ const ControleRecebimentoPanel = () => {
                         <th>Cliente</th>
                         <th>Valor do Plano</th>
                         <th>Data da Venda</th>
+                        <th>Recebimento</th> {/* Nova coluna */}
                         <th>Ações</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredVendas.map((venda) => (
-                        <React.Fragment key={venda.id}>
-                          <tr>
-                            <td>{venda.numero_proposta}</td>
-                            <td>{venda.cliente.nome}</td>
-                            <td>{formatCurrency(venda.valor_plano)}</td>
-                            <td>{format(parseISO(venda.data_venda), 'dd/MM/yyyy')}</td>
-                            <td>
-                              <Button
-                                color="info"
-                                size="sm"
-                                onClick={() => toggleCollapse(venda.id)}
-                              >
-                                {openVendaIds.includes(venda.id)
-                                  ? 'Esconder Parcelas'
-                                  : 'Mostrar Parcelas'}
-                              </Button>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td colSpan="5" style={{ padding: 0 }}>
-                              <Collapse isOpen={openVendaIds.includes(venda.id)}>
-                                <Table size="sm" responsive>
-                                  <thead>
-                                    <tr>
-                                      <th>Número da Parcela</th>
-                                      <th>Valor da Parcela</th>
-                                      <th>Data Prevista de Recebimento</th>
-                                      <th>Dias de Atraso</th>
-                                      <th>Data Real de Recebimento</th>
-                                      <th>Número do Extrato</th>
-                                      <th>Status</th>
-                                      <th>Ações</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {venda.parcelas_recebimento.map((recebimento) => (
-                                      <tr key={recebimento.id}>
-                                        <td>{recebimento.parcela.numero_parcela}</td>
-                                        <td>{formatCurrency(recebimento.valor_parcela)}</td>
-                                        <td>
-                                          {format(
-                                            parseISO(recebimento.data_prevista_recebimento),
-                                            'dd/MM/yyyy'
-                                          )}
-                                        </td>
-                                        <td>
-                                          {(() => {
-                                            const diasAtraso = calcularDiasAtraso(
-                                              recebimento.data_prevista_recebimento,
-                                              recebimento.data_recebimento
-                                            );
-                                            return diasAtraso > 0 ? `${diasAtraso} dias` : '-';
-                                          })()}
-                                        </td>
-                                        <td>
-                                          <Input
-                                            type="date"
-                                            value={
-                                              editingRecebimentos[recebimento.id]?.data_recebimento ||
-                                              recebimento.data_recebimento ||
-                                              ''
-                                            }
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                recebimento.id,
-                                                'data_recebimento',
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                        </td>
-                                        <td>
-                                          <Input
-                                            type="text"
-                                            value={
-                                              editingRecebimentos[recebimento.id]?.numero_extrato ||
-                                              recebimento.numero_extrato ||
-                                              ''
-                                            }
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                recebimento.id,
-                                                'numero_extrato',
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                        </td>
-                                        <td>{recebimento.status}</td>
-                                        <td>
-                                          {recebimento.status !== 'Recebido' && (
-                                            <Button
-                                              color="success"
-                                              size="sm"
-                                              onClick={() => handleMarcarRecebida(recebimento.id)}
-                                            >
-                                              Marcar como Recebida
-                                            </Button>
-                                          )}
-                                        </td>
+                      {filteredVendas.map((venda) => {
+                        const totalParcelas = venda.parcelas_recebimento.length;
+                        const parcelasRecebidas = venda.parcelas_recebimento.filter(
+                          (recebimento) => recebimento.status === 'Recebido'
+                        ).length;
+                        const percentualRecebido =
+                          totalParcelas > 0 ? (parcelasRecebidas / totalParcelas) * 100 : 0;
+
+                        return (
+                          <React.Fragment key={venda.id}>
+                            <tr>
+                              <td>{venda.numero_proposta}</td>
+                              <td>{venda.cliente.nome}</td>
+                              <td>{formatCurrency(venda.valor_plano)}</td>
+                              <td>{format(parseISO(venda.data_venda), 'dd/MM/yyyy')}</td>
+                              <td>
+                                <div className="d-flex align-items-center">
+                                  <span className="mr-2">
+                                    {parcelasRecebidas}/{totalParcelas}
+                                  </span>
+                                  <div style={{ flex: 1 }}>
+                                    <Progress
+                                      value={percentualRecebido}
+                                      color={getProgressColor(percentualRecebido)}
+                                      barClassName="bg-gradient"
+                                    />
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <Button
+                                  color="info"
+                                  size="sm"
+                                  onClick={() => toggleCollapse(venda.id)}
+                                >
+                                  {openVendaIds.includes(venda.id)
+                                    ? 'Esconder Parcelas'
+                                    : 'Mostrar Parcelas'}
+                                </Button>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td colSpan="6" style={{ padding: 0 }}>
+                                <Collapse isOpen={openVendaIds.includes(venda.id)}>
+                                  <Table size="sm" responsive>
+                                    <thead>
+                                      <tr>
+                                        <th>Número da Parcela</th>
+                                        <th>Valor da Parcela</th>
+                                        <th>Data Prevista de Recebimento</th>
+                                        <th>Dias de Atraso</th>
+                                        <th>Data Real de Recebimento</th>
+                                        <th>Número do Extrato</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
                                       </tr>
-                                    ))}
-                                  </tbody>
-                                </Table>
-                              </Collapse>
-                            </td>
-                          </tr>
-                        </React.Fragment>
-                      ))}
+                                    </thead>
+                                    <tbody>
+                                      {venda.parcelas_recebimento.map((recebimento) => (
+                                        <tr key={recebimento.id}>
+                                          <td>{recebimento.parcela.numero_parcela}</td>
+                                          <td>{formatCurrency(recebimento.valor_parcela)}</td>
+                                          <td>
+                                            {format(
+                                              parseISO(recebimento.data_prevista_recebimento),
+                                              'dd/MM/yyyy'
+                                            )}
+                                          </td>
+                                          <td>
+                                            {(() => {
+                                              const diasAtraso = calcularDiasAtraso(
+                                                recebimento.data_prevista_recebimento,
+                                                recebimento.data_recebimento
+                                              );
+                                              return diasAtraso > 0 ? `${diasAtraso} dias` : '-';
+                                            })()}
+                                          </td>
+                                          <td>
+                                            <Input
+                                              type="date"
+                                              value={
+                                                editingRecebimentos[recebimento.id]?.data_recebimento ||
+                                                recebimento.data_recebimento ||
+                                                ''
+                                              }
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  recebimento.id,
+                                                  'data_recebimento',
+                                                  e.target.value
+                                                )
+                                              }
+                                            />
+                                          </td>
+                                          <td>
+                                            <Input
+                                              type="text"
+                                              value={
+                                                editingRecebimentos[recebimento.id]?.numero_extrato ||
+                                                recebimento.numero_extrato ||
+                                                ''
+                                              }
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  recebimento.id,
+                                                  'numero_extrato',
+                                                  e.target.value
+                                                )
+                                              }
+                                            />
+                                          </td>
+                                          <td>{recebimento.status}</td>
+                                          <td>
+                                            {recebimento.status !== 'Recebido' && (
+                                              <Button
+                                                color="success"
+                                                size="sm"
+                                                onClick={() => handleMarcarRecebida(recebimento.id)}
+                                              >
+                                                Marcar como Recebida
+                                              </Button>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </Table>
+                                </Collapse>
+                              </td>
+                            </tr>
+                          </React.Fragment>
+                        );
+                      })}
                     </tbody>
                   </Table>
                 )}

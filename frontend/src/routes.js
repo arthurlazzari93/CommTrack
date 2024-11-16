@@ -12,6 +12,7 @@ import ConsultoresList from "views/ConsultoresList.js";
 import VendasList from "views/VendasList";
 import Profile from "views/examples/Profile.js";
 import ControleRecebimentoPanel from "views/ControleRecebimentoPanel.js";
+import Tables from "views/examples/Tables.js";
 
 var routes = [
   {
@@ -19,6 +20,13 @@ var routes = [
     name: "Dashboard",
     icon: "ni ni-chart-bar-32 text-blue",
     component: <Index />,
+    layout: "/admin",
+  },
+  {
+    path: "/tables",
+    name: "Tables",
+    icon: "ni ni-chart-bar-32 text-blue",
+    component: <Tables />,
     layout: "/admin",
   },
   {
