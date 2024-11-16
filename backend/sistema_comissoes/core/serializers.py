@@ -46,3 +46,21 @@ class VendaSerializer(serializers.ModelSerializer):
         model = Venda
         fields = '__all__'
 
+    def create(self, validated_data):
+        # Extraia os campos relacionados
+        cliente = validated_data.pop('cliente')
+        plano = validated_data.pop('plano')
+        consultor = validated_data.pop('consultor')
+
+        # Crie a instância da Venda
+        venda = Venda.objects.create(
+            cliente=cliente,
+            plano=plano,
+            consultor=consultor,
+            **validated_data
+        )
+
+        # Retorne a instância criada
+        return venda
+
+
