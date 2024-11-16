@@ -100,7 +100,9 @@ const ControleRecebimentoPanel = () => {
         console.error('Erro ao atualizar recebimento:', error);
       });
   }, []);
+  
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdateRecebimento = useCallback(
     debounce((recebimentoId, data) => {
       updateRecebimento(recebimentoId, data);
@@ -173,6 +175,7 @@ const ControleRecebimentoPanel = () => {
     debouncedSearch(e.target.value);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     debounce((value) => {
       setDebouncedSearchTerm(value);
