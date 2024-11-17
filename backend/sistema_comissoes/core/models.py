@@ -116,37 +116,7 @@ class Venda(models.Model):
             # Atualiza a data para a próxima iteração
             previous_data_recebimento_or_prevista = controle.data_recebimento or controle.data_prevista_recebimento
 
-# Definição dos sinais fora da classe Venda
 
-        @receiver(pre_save, sender=ControleDeRecebimento)
-        def store_previous_data_recebimento(sender, instance, **kwargs):
-            if instance.pk:
-        # Obtém a instância antes da atualização
-                previous_instance = ControleDeRecebimento.objects.get(pk=instance.pk)
-                instance._previous_data_recebimento = previous_instance.data_recebimento
-            else:
-                instance._previous_data_recebimento = None
-
-        @receiver(post_save, sender=ControleDeRecebimento)
-        def update_expected_dates(sender, instance, created, **kwargs):
-            if not created:
-                previous_data_recebimento = getattr(instance, '_previous_data_recebimento', None)
-            if previous_data_recebimento != instance.data_recebimento:
-            # A data de recebimento foi alterada
-                subsequent_installments = ControleDeRecebimento.objects.filter(
-                venda=instance.venda,
-                parcela__numero_parcela__gt=instance.parcela.numero_parcela
-            ).order_by('parcela__numero_parcela')
-
-            previous_date = instance.data_recebimento or instance.data_prevista_recebimento
-
-            for installment in subsequent_installments:
-                data_base = previous_date
-                new_data_prevista = data_base + datetime.timedelta(days=30)
-                if installment.data_prevista_recebimento != new_data_prevista:
-                    installment.data_prevista_recebimento = new_data_prevista
-                    installment.save(update_fields=['data_prevista_recebimento'])
-                previous_date = installment.data_recebimento or installment.data_prevista_recebimento
 
 
 
@@ -167,3 +137,36 @@ class ControleDeRecebimento(models.Model):
 
     def __str__(self):
         return f"Recebimento Parcela {self.parcela.numero_parcela} - Venda {self.venda.numero_proposta}"
+    
+
+# Definição dos sinais fora da classe Venda
+
+@receiver(pre_save, sender=ControleDeRecebimento)
+def store_previous_data_recebimento(sender, instance, **kwargs):
+    if instance.pk:
+        # Obtém a instância antes da atualização
+        previous_instance = ControleDeRecebimento.objects.get(pk=instance.pk)
+        instance._previous_data_recebimento = previous_instance.data_recebimento
+    else:
+        instance._previous_data_recebimento = None
+
+@receiver(post_save, sender=ControleDeRecebimento)
+def update_expected_dates(sender, instance, created, **kwargs):
+    if not created:
+        previous_data_recebimento = getattr(instance, '_previous_data_recebimento', None)
+        if previous_data_recebimento != instance.data_recebimento:
+            # A data de recebimento foi alterada
+            subsequent_installments = ControleDeRecebimento.objects.filter(
+                venda=instance.venda,
+                parcela__numero_parcela__gt=instance.parcela.numero_parcela
+            ).order_by('parcela__numero_parcela')
+
+            previous_date = instance.data_recebimento or instance.data_prevista_recebimento
+
+            for installment in subsequent_installments:
+                data_base = previous_date
+                new_data_prevista = data_base + datetime.timedelta(days=30)
+                if installment.data_prevista_recebimento != new_data_prevista:
+                    installment.data_prevista_recebimento = new_data_prevista
+                    installment.save(update_fields=['data_prevista_recebimento'])
+                previous_date = installment.data_recebimento or installment.data_prevista_recebimento

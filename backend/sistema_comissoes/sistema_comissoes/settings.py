@@ -53,6 +53,14 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # Mantenha outras configurações existentes
+}
+
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
