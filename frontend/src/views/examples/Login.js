@@ -1,4 +1,6 @@
-
+// views/examples/Login.js
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -6,94 +8,87 @@ import {
   FormGroup,
   Form,
   Input,
-  InputGroupAddon,
-  InputGroupText,
   InputGroup,
-  Row,
+  InputGroupText,
+  InputGroupAddon,
   Col,
-} from "reactstrap";
+} from 'reactstrap';
+import api from '../../api';
 
 const Login = () => {
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    api
+      .post('api/token/', credentials)
+      .then((response) => {
+        localStorage.setItem('token', response.data.access);
+        navigate('/admin/index');
+      })
+      .catch((error) => {
+        setError('Credenciais inválidas');
+      });
+  };
+
   return (
-    <>
-      <Col lg="5" md="7">
-        <Card className="bg-secondary shadow border-0">
-          <CardBody className="px-lg-5 py-lg-5">
-            <div className="text-center text-muted mb-4">
-              <small>Entre com sua credencial</small>
-            </div>
-            <Form role="form">
-              <FormGroup className="mb-3">
-                <InputGroup className="input-group-alternative">
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <i className="ni ni-email-83" />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    placeholder="Email"
-                    type="email"
-                    autoComplete="new-email"
-                  />
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <InputGroup className="input-group-alternative">
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <i className="ni ni-lock-circle-open" />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    placeholder="Password"
-                    type="password"
-                    autoComplete="new-password"
-                  />
-                </InputGroup>
-              </FormGroup>
-              <div className="custom-control custom-control-alternative custom-checkbox">
-                <input
-                  className="custom-control-input"
-                  id=" customCheckLogin"
-                  type="checkbox"
+    <Col lg="5" md="7">
+      <Card className="bg-secondary shadow border-0">
+        <CardBody className="px-lg-5 py-lg-5">
+          <div className="text-center text-muted mb-4">
+            <small>Entre com sua credencial</small>
+          </div>
+          {error && <p className="text-danger text-center">{error}</p>}
+          <Form role="form" onSubmit={handleSubmit}>
+            <FormGroup className="mb-3">
+              <InputGroup className="input-group-alternative">
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>
+                    <i className="ni ni-single-02" />
+                  </InputGroupText>
+                </InputGroupAddon>
+                <Input
+                  placeholder="Usuário"
+                  type="text"
+                  name="username"
+                  value={credentials.username}
+                  onChange={handleChange}
+                  required
                 />
-                <label
-                  className="custom-control-label"
-                  htmlFor=" customCheckLogin"
-                >
-                  <span className="text-muted">Remember me</span>
-                </label>
-              </div>
-              <div className="text-center">
-                <Button className="my-4" color="primary" type="button">
-                  Sign in
-                </Button>
-              </div>
-            </Form>
-          </CardBody>
-        </Card>
-        <Row className="mt-3">
-          <Col xs="6">
-            <a
-              className="text-light"
-              href="#pablo"
-              onClick={(e) => e.preventDefault()}
-            >
-              <small>Forgot password?</small>
-            </a>
-          </Col>
-          <Col className="text-right" xs="6">
-            <a
-              className="text-light"
-              href="#pablo"
-              onClick={(e) => e.preventDefault()}
-            >
-              <small>Create new account</small>
-            </a>
-          </Col>
-        </Row>
-      </Col>
-    </>
+              </InputGroup>
+            </FormGroup>
+            <FormGroup>
+              <InputGroup className="input-group-alternative">
+                <InputGroupAddon addonType="prepend">
+                  <InputGroupText>
+                    <i className="ni ni-lock-circle-open" />
+                  </InputGroupText>
+                </InputGroupAddon>
+                <Input
+                  placeholder="Senha"
+                  type="password"
+                  name="password"
+                  value={credentials.password}
+                  onChange={handleChange}
+                  required
+                />
+              </InputGroup>
+            </FormGroup>
+            <div className="text-center">
+              <Button className="my-4" color="primary" type="submit">
+                Entrar
+              </Button>
+            </div>
+          </Form>
+        </CardBody>
+      </Card>
+    </Col>
   );
 };
 
