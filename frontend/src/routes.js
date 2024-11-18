@@ -28,6 +28,7 @@ var routes = [
     icon: "ni ni-chart-bar-32 text-blue",
     component: <Tables />,
     layout: "/admin",
+    invisible: true,
   },
   {
     path: "/icons",
@@ -42,6 +43,7 @@ var routes = [
     icon: "ni ni-key-25 text-blue",
     component: <Login />,
     layout: "/auth",
+    invisible: true,
   },
   {
     path: "/register",
@@ -49,6 +51,7 @@ var routes = [
     icon: "ni ni-circle-08 text-blue",
     component: <Register />,
     layout: "/auth",
+    invisible: true,
   },
   {
     path: "/clientes",

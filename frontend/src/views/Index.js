@@ -151,6 +151,7 @@ const Index = (props) => {
   }, []);
 
   // Debounce para otimizar a busca (opcional, já que as tabelas de busca foram removidas)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     debounce((value) => {
       setDebouncedSearchTerm(value);

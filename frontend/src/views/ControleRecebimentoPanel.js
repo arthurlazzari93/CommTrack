@@ -139,12 +139,12 @@ const ControleRecebimentoPanel = () => {
   };
 
   const handleMarcarRecebida = async (recebimentoId) => {
-    const dataAtual = new Date().toISOString().split('T')[0]; // Formato 'YYYY-MM-DD'
+
 
     try {
       const response = await api.patch(`api/controlederecebimento/${recebimentoId}/`, {
         status: 'Recebido',
-        data_recebimento: dataAtual,
+
       });
       const updatedRecebimento = response.data;
       setVendas((prevVendas) =>
