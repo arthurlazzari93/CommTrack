@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import classnames from "classnames";
+import "variables/charts.js";
 import { Line, Bar, Pie, Doughnut } from "react-chartjs-2";
 import {
-  Button,
+  //Button,
   Card,
   CardHeader,
   CardBody,
   NavItem,
   NavLink,
   Nav,
-  Progress,
+  //Progress,
   Container,
   Row,
   Col,

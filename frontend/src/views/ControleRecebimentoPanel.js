@@ -17,7 +17,7 @@ import {
   Label,
   Form,
   InputGroup,
-  InputGroupAddon,
+  //InputGroupAddon,
   InputGroupText,
   Spinner,
   Alert,
@@ -293,11 +293,11 @@ const ControleRecebimentoPanel = () => {
                                 value={searchTerm}
                                 onChange={handleSearchChange}
                               />
-                              <InputGroupAddon addonType="append">
+                              <InputGroupText addonType="append">
                                 <InputGroupText>
                                   <FontAwesomeIcon icon={faSearch} />
                                 </InputGroupText>
-                              </InputGroupAddon>
+                              </InputGroupText>
                             </InputGroup>
                           </FormGroup>
                         </Col>

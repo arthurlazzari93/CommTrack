@@ -1,4 +1,4 @@
-# Usar uma imagem base do Node para construir a aplicação
+# Etapa de Build
 FROM node:18-alpine as build
 
 # Definir o diretório de trabalho
@@ -16,7 +16,7 @@ COPY . .
 # Executar a compilação da aplicação
 RUN npm run build
 
-# Etapa de produção: usar uma imagem menor para servir a aplicação
+# Etapa de Produção
 FROM node:18-alpine
 
 # Instalar o pacote 'serve' globalmente

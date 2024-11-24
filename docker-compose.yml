@@ -6,24 +6,30 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: commtrack_backend
-    command: gunicorn sistema_comissoes.wsgi:application --bind 0.0.0.0:8000
-    volumes:
-      - ./backend:/app
-      - ./backend/db:/app/db  # Persistir o banco de dados
-    ports:
-      - "8000:8000"
     env_file:
       - ./backend/.env
+    volumes:
+      - ./backend/sistema_comissoes/sistema_comissoes/db.sqlite3:/app/sistema_comissoes/sistema_comissoes/db.sqlite3
+      - ./backend/sistema_comissoes/sistema_comissoes/static:/app/sistema_comissoes/sistema_comissoes/static
+    ports:
+      - "8000:8000"
+    restart: always
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://backend:8000/api/
     container_name: commtrack_frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
+    restart: always
+    # Remover volumes para evitar sobrescrita da build de produção
+    # volumes:
+    #   - ./frontend:/app
 
 volumes:
-  postgres_data:
+  db_data:

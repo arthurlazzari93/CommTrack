@@ -1,7 +1,30 @@
 // src/variables/charts.js
 
 // Extensão do Chart.js para barras arredondadas (opcional)
-import Chart from "chart.js";
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  ArcElement,
+  PointElement,
+  Legend,
+  Tooltip,
+} from 'chart.js';
+
+// Registrar os componentes necessários
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  ArcElement,
+  PointElement,
+  Legend,
+  Tooltip
+);
+
 
 // Verifica se Chart está disponível no objeto window
 if (typeof window !== "undefined" && window.Chart) {
@@ -52,7 +75,7 @@ export const chartOptions = {
     display: false,
   },
   scales: {
-    xAxes: [
+    x: [
       {
         gridLines: {
           display: false,
@@ -62,7 +85,7 @@ export const chartOptions = {
         },
       },
     ],
-    yAxes: [
+    y: [
       {
         gridLines: {
           color: "#e9ecef",

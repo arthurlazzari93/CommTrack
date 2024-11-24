@@ -48,10 +48,11 @@
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@popperjs/core": "^2.11.8",
     "ajv": "^8.16.0",
     "axios": "^1.7.7",
     "bootstrap": "4.6.2",
-    "chart.js": "^2.9.4",
+    "chart.js": "^4.4.6",
     "classnames": "2.3.2",
     "date-fns": "^4.1.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc-5c56b873-20241107",
@@ -59,24 +60,25 @@
     "moment": "^2.29.4",
     "nouislider": "15.4.0",
     "react": "18.2.0",
-    "react-chartjs-2": "^2.11.2",
+    "react-chartjs-2": "^5.2.0",
     "react-copy-to-clipboard": "5.1.0",
     "react-datetime": "3.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
-    "reactstrap": "^8.10.1",
+    "reactstrap": "^9.2.0",
     "sass": "1.69.5",
-    "serve": "^14.2.4"
+    "serve": "^14.2.4",
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "cross-env": "^7.0.3",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.9"
   },
   "optionalDependencies": {
-    "eslint-plugin-flowtype": "8.0.3",
-    "typescript": "5.3.3"
+    "eslint-plugin-flowtype": "8.0.3"
   },
   "overrides": {
     "svgo": "3.0.2",

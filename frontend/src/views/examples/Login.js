@@ -10,7 +10,7 @@ import {
   Input,
   InputGroup,
   InputGroupText,
-  InputGroupAddon,
+  //InputGroupAddon,
   Col,
 } from 'reactstrap';
 import api from '../../api';
@@ -48,11 +48,11 @@ const Login = () => {
           <Form role="form" onSubmit={handleSubmit}>
             <FormGroup className="mb-3">
               <InputGroup className="input-group-alternative">
-                <InputGroupAddon addonType="prepend">
+                <InputGroupText addonType="prepend">
                   <InputGroupText>
                     <i className="ni ni-single-02" />
                   </InputGroupText>
-                </InputGroupAddon>
+                </InputGroupText>
                 <Input
                   placeholder="Usuário"
                   type="text"
@@ -65,11 +65,11 @@ const Login = () => {
             </FormGroup>
             <FormGroup>
               <InputGroup className="input-group-alternative">
-                <InputGroupAddon addonType="prepend">
+                <InputGroupText addonType="prepend">
                   <InputGroupText>
                     <i className="ni ni-lock-circle-open" />
                   </InputGroupText>
-                </InputGroupAddon>
+                </InputGroupText>
                 <Input
                   placeholder="Senha"
                   type="password"
