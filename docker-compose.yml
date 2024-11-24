@@ -2,12 +2,10 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: alazzari93/commtrack-backend:latest
     container_name: commtrack_backend
     env_file:
-      - ./backend/.env
+      - ./backend/.env.prod
     volumes:
       - ./backend/sistema_comissoes/sistema_comissoes/db.sqlite3:/app/sistema_comissoes/sistema_comissoes/db.sqlite3
       - ./backend/sistema_comissoes/sistema_comissoes/static:/app/sistema_comissoes/sistema_comissoes/static
@@ -16,20 +14,13 @@ services:
     restart: always
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - REACT_APP_API_URL=http://backend:8000/api/
+    image: alazzari93/commtrack-frontend:latest
     container_name: commtrack_frontend
     ports:
       - "3000:3000"
     depends_on:
       - backend
     restart: always
-    # Remover volumes para evitar sobrescrita da build de produção
-    # volumes:
-    #   - ./frontend:/app
 
 volumes:
   db_data:
